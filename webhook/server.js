@@ -51,6 +51,6 @@ const server = http.createServer((req, res) => {
   }
 })
 
-server.listen(PORT, '127.0.0.1', () => {
-  console.log(`웹훅 서버 실행 중 - 포트 ${PORT} (localhost only)`)
+server.listen(PORT, '0.0.0.0', () => {
+  console.log(`웹훅 서버 실행 중 - 포트 ${PORT}`)
 })
