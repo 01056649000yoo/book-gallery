@@ -13,8 +13,7 @@ export default function BookUploadForm({ classId }: { classId: string }) {
   const [error, setError] = useState('')
   const router = useRouter()
 
-  async function handleSubmit(e: React.FormEvent) {
-    e.preventDefault()
+  async function handleSubmit() {
     if (!cover || !pdf) { setError('표지 이미지와 PDF를 모두 선택해주세요.'); return }
 
     setLoading(true)
@@ -35,14 +34,14 @@ export default function BookUploadForm({ classId }: { classId: string }) {
       setCover(null); setPdf(null)
       router.refresh()
     } else {
-      const data = await res.json()
+      const data = await res.json().catch(() => ({}))
       setError(data.error ?? '업로드에 실패했습니다.')
     }
     setLoading(false)
   }
 
   return (
-    <form onSubmit={handleSubmit} className="flex flex-col gap-4">
+    <form action={handleSubmit} className="flex flex-col gap-4">
       <input
         type="text"
         placeholder="책 제목 *"

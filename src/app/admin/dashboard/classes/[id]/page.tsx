@@ -1,10 +1,10 @@
 import { isAuthenticated } from '@/lib/session'
 import { redirect } from 'next/navigation'
-import { supabaseAdmin, getSignedUrl } from '@/lib/supabase'
+import { supabaseAdmin } from '@/lib/supabase'
+import { getFileUrl } from '@/lib/storage'
 import Link from 'next/link'
 import BookUploadForm from './BookUploadForm'
 import BookDeleteButton from './BookDeleteButton'
-import Image from 'next/image'
 
 export default async function ClassDetailPage({ params }: { params: Promise<{ id: string }> }) {
   if (!(await isAuthenticated())) redirect('/admin')
@@ -25,12 +25,10 @@ export default async function ClassDetailPage({ params }: { params: Promise<{ id
     .eq('class_id', id)
     .order('created_at', { ascending: true })
 
-  const booksWithCovers = await Promise.all(
-    (books ?? []).map(async (book) => {
-      const coverUrl = await getSignedUrl('covers', book.cover_image_path).catch(() => null)
-      return { ...book, cover_url: coverUrl }
-    })
-  )
+  const booksWithCovers = (books ?? []).map((book) => ({
+    ...book,
+    cover_url: getFileUrl('covers', book.cover_image_path),
+  }))
 
   return (
     <main className="bookshelf-bg min-h-screen">
@@ -71,11 +69,13 @@ export default async function ClassDetailPage({ params }: { params: Promise<{ id
               <div className="flex flex-col gap-3">
                 {booksWithCovers.map((book) => (
                   <div key={book.id} className="bg-white rounded-xl p-4 shadow-sm flex gap-4 items-center">
-                    {book.cover_url && (
-                      <div className="relative w-12 h-16 flex-shrink-0 rounded overflow-hidden shadow">
-                        <Image src={book.cover_url} alt={book.title} fill className="object-cover" />
-                      </div>
-                    )}
+                    <div className="w-12 h-16 flex-shrink-0 rounded overflow-hidden shadow bg-stone-100">
+                      <img
+                        src={book.cover_url}
+                        alt={book.title}
+                        className="w-full h-full object-cover"
+                      />
+                    </div>
                     <div className="flex-1 min-w-0">
                       <p className="font-medium text-stone-800 truncate">{book.title}</p>
                       <p className="text-stone-400 text-sm">{book.author}</p>

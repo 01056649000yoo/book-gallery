@@ -4,9 +4,13 @@ services:
     container_name: book-gallery
     restart: unless-stopped
     ports:
-      - "3000:3000"
+      - "3005:3000"
     env_file:
       - .env.local
+    environment:
+      - UPLOAD_DIR=/app/uploads
+    volumes:
+      - ./uploads:/app/uploads
     networks:
       - app-network
 

@@ -11,8 +11,7 @@ export default function NewClassPage() {
   const [error, setError] = useState('')
   const router = useRouter()
 
-  async function handleSubmit(e: React.FormEvent) {
-    e.preventDefault()
+  async function handleSubmit() {
     setLoading(true)
     setError('')
 
@@ -40,7 +39,7 @@ export default function NewClassPage() {
         </Link>
         <h1 className="text-2xl font-bold text-stone-800 mb-8">학급 개설</h1>
         <div className="bg-white rounded-2xl p-8 shadow-sm">
-          <form onSubmit={handleSubmit} className="flex flex-col gap-5">
+          <form action={handleSubmit} className="flex flex-col gap-5">
             <div>
               <label className="block text-sm font-medium text-stone-600 mb-2">학급명 *</label>
               <input

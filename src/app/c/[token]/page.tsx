@@ -1,4 +1,5 @@
-import { supabaseAdmin, getSignedUrl } from '@/lib/supabase'
+import { supabaseAdmin } from '@/lib/supabase'
+import { getFileUrl } from '@/lib/storage'
 import { notFound, redirect } from 'next/navigation'
 import BookShelf from './BookShelf'
 
@@ -25,12 +26,10 @@ export default async function ClassPage({ params }: { params: Promise<{ token: s
     .eq('class_id', tokenData.class_id)
     .order('created_at', { ascending: true })
 
-  const booksWithCovers = await Promise.all(
-    (books ?? []).map(async (book) => {
-      const coverUrl = await getSignedUrl('covers', book.cover_image_path, 3600).catch(() => null)
-      return { ...book, cover_url: coverUrl }
-    })
-  )
+  const booksWithCovers = (books ?? []).map((book) => ({
+    ...book,
+    cover_url: getFileUrl('covers', book.cover_image_path, token),
+  }))
 
   const cls = tokenData.classes as unknown as { name: string; description: string | null }
 

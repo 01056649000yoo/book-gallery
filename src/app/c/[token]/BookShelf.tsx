@@ -1,6 +1,5 @@
 'use client'
 
-import Image from 'next/image'
 import Link from 'next/link'
 
 interface Book {
@@ -31,12 +30,10 @@ export default function BookShelf({ books, token }: { books: Book[]; token: stri
         >
           <div className="relative w-full aspect-[3/4] rounded-lg overflow-hidden shadow-md group-hover:-translate-y-2 group-hover:shadow-xl transition-all duration-300 bg-stone-200">
             {book.cover_url ? (
-              <Image
+              <img
                 src={book.cover_url}
                 alt={book.title}
-                fill
-                className="object-cover"
-                sizes="(max-width: 640px) 50vw, (max-width: 768px) 33vw, 20vw"
+                className="w-full h-full object-cover"
               />
             ) : (
               <div className="w-full h-full flex items-center justify-center text-stone-400 text-4xl">

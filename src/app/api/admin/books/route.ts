@@ -1,8 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { isAuthenticated } from '@/lib/session'
 import { supabaseAdmin } from '@/lib/supabase'
+import { saveFile } from '@/lib/storage'
 
-const MAX_FILE_SIZE = 30 * 1024 * 1024 // 30MB
+const MAX_FILE_SIZE = 100 * 1024 * 1024 // 100MB
 
 export async function POST(req: NextRequest) {
   if (!(await isAuthenticated())) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
@@ -20,20 +21,21 @@ export async function POST(req: NextRequest) {
   }
 
   if (pdfFile.size > MAX_FILE_SIZE) {
-    return NextResponse.json({ error: 'PDF 파일은 30MB 이하만 업로드 가능합니다.' }, { status: 400 })
+    return NextResponse.json({ error: 'PDF 파일은 100MB 이하만 업로드 가능합니다.' }, { status: 400 })
   }
 
   const timestamp = Date.now()
   const coverPath = `${classId}/${timestamp}_cover_${coverFile.name}`
   const pdfPath = `${classId}/${timestamp}_${pdfFile.name}`
 
-  const [coverUpload, pdfUpload] = await Promise.all([
-    supabaseAdmin.storage.from('covers').upload(coverPath, coverFile),
-    supabaseAdmin.storage.from('pdfs').upload(pdfPath, pdfFile),
-  ])
-
-  if (coverUpload.error) return NextResponse.json({ error: coverUpload.error.message }, { status: 500 })
-  if (pdfUpload.error) return NextResponse.json({ error: pdfUpload.error.message }, { status: 500 })
+  try {
+    await Promise.all([
+      saveFile('covers', coverPath, coverFile),
+      saveFile('pdfs', pdfPath, pdfFile),
+    ])
+  } catch (err) {
+    return NextResponse.json({ error: '파일 저장에 실패했습니다.' }, { status: 500 })
+  }
 
   const { data, error } = await supabaseAdmin
     .from('books')

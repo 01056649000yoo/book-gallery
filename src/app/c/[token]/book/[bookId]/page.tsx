@@ -1,4 +1,5 @@
-import { supabaseAdmin, getSignedUrl } from '@/lib/supabase'
+import { supabaseAdmin } from '@/lib/supabase'
+import { getFileUrl } from '@/lib/storage'
 import { notFound } from 'next/navigation'
 import Link from 'next/link'
 import PDFViewer from './PDFViewer'
@@ -29,7 +30,7 @@ export default async function BookPage({
 
   if (!book) notFound()
 
-  const pdfUrl = await getSignedUrl('pdfs', book.pdf_path, 3600)
+  const pdfUrl = getFileUrl('pdfs', book.pdf_path, token)
 
   return (
     <main className="min-h-screen bg-stone-900 flex flex-col">

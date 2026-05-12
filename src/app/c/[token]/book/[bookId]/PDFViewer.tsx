@@ -5,16 +5,21 @@ import { Document, Page, pdfjs } from 'react-pdf'
 import 'react-pdf/dist/Page/AnnotationLayer.css'
 import 'react-pdf/dist/Page/TextLayer.css'
 
-pdfjs.GlobalWorkerOptions.workerSrc = `//unpkg.com/pdfjs-dist@${pdfjs.version}/build/pdf.worker.min.mjs`
+pdfjs.GlobalWorkerOptions.workerSrc = '/pdf.worker.min.mjs'
 
 export default function PDFViewer({ pdfUrl }: { pdfUrl: string }) {
   const [numPages, setNumPages] = useState(0)
   const [pageNumber, setPageNumber] = useState(1)
   const [loading, setLoading] = useState(true)
+  const [loadProgress, setLoadProgress] = useState(0)
 
   const onLoadSuccess = useCallback(({ numPages }: { numPages: number }) => {
     setNumPages(numPages)
     setLoading(false)
+  }, [])
+
+  const onLoadProgress = useCallback(({ loaded, total }: { loaded: number; total: number }) => {
+    if (total > 0) setLoadProgress(Math.round((loaded / total) * 100))
   }, [])
 
   const goToPrev = () => setPageNumber((p) => Math.max(1, p - 1))
@@ -26,14 +31,26 @@ export default function PDFViewer({ pdfUrl }: { pdfUrl: string }) {
       onContextMenu={(e) => e.preventDefault()}
     >
       {loading && (
-        <div className="text-stone-400 text-sm animate-pulse">PDF 불러오는 중...</div>
+        <div className="flex flex-col items-center gap-3 text-stone-400">
+          <div className="w-48 h-1.5 bg-stone-700 rounded-full overflow-hidden">
+            <div
+              className="h-full bg-amber-500 rounded-full transition-all duration-300"
+              style={{ width: `${loadProgress}%` }}
+            />
+          </div>
+          <p className="text-sm">
+            {loadProgress > 0 ? `${loadProgress}% 불러오는 중...` : 'PDF 불러오는 중...'}
+          </p>
+        </div>
       )}
 
       <Document
         file={pdfUrl}
         onLoadSuccess={onLoadSuccess}
+        onLoadProgress={onLoadProgress}
         loading={null}
         className="flex justify-center"
+        options={{ disableStream: false, disableAutoFetch: false }}
       >
         <div className="relative shadow-2xl rounded-sm overflow-hidden">
           <Page
@@ -64,7 +81,7 @@ export default function PDFViewer({ pdfUrl }: { pdfUrl: string }) {
             disabled={pageNumber >= numPages}
             className="w-10 h-10 rounded-full bg-stone-700 text-white flex items-center justify-center hover:bg-stone-600 disabled:opacity-30 disabled:cursor-not-allowed transition-colors text-lg"
             aria-label="다음 페이지"
-          >
+            >
             ›
           </button>
         </div>

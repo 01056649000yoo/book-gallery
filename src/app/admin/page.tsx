@@ -9,8 +9,7 @@ export default function AdminLoginPage() {
   const [loading, setLoading] = useState(false)
   const router = useRouter()
 
-  async function handleSubmit(e: React.FormEvent) {
-    e.preventDefault()
+  async function handleSubmit() {
     setLoading(true)
     setError('')
 
@@ -34,7 +33,7 @@ export default function AdminLoginPage() {
       <div className="bg-white rounded-2xl shadow-lg p-10 w-full max-w-sm">
         <h1 className="text-2xl font-bold text-stone-800 mb-1">관리자</h1>
         <p className="text-stone-400 text-sm mb-8">학교 책 갤러리 관리자 페이지입니다.</p>
-        <form onSubmit={handleSubmit} className="flex flex-col gap-4">
+        <form action={handleSubmit} className="flex flex-col gap-4">
           <input
             type="password"
             placeholder="비밀번호"

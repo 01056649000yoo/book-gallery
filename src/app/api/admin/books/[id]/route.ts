@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { isAuthenticated } from '@/lib/session'
 import { supabaseAdmin } from '@/lib/supabase'
+import { deleteFile } from '@/lib/storage'
 
 export async function DELETE(_: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   if (!(await isAuthenticated())) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
@@ -15,8 +16,8 @@ export async function DELETE(_: NextRequest, { params }: { params: Promise<{ id:
   if (fetchError) return NextResponse.json({ error: fetchError.message }, { status: 500 })
 
   await Promise.all([
-    supabaseAdmin.storage.from('covers').remove([book.cover_image_path]),
-    supabaseAdmin.storage.from('pdfs').remove([book.pdf_path]),
+    deleteFile('covers', book.cover_image_path),
+    deleteFile('pdfs', book.pdf_path),
   ])
 
   const { error } = await supabaseAdmin.from('books').delete().eq('id', id)
