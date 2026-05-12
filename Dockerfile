@@ -10,6 +10,15 @@ FROM base AS builder
 WORKDIR /app
 COPY --from=deps /app/node_modules ./node_modules
 COPY . .
+
+# 빌드 시 필요한 플레이스홀더 (실제 값은 런타임에 env_file로 주입됨)
+ENV NEXT_PUBLIC_SUPABASE_URL=http://placeholder.build
+ENV NEXT_PUBLIC_SUPABASE_ANON_KEY=placeholder
+ENV NEXT_PUBLIC_APP_URL=http://placeholder.build
+ENV SUPABASE_SERVICE_ROLE_KEY=placeholder
+ENV ADMIN_PASSWORD=placeholder
+ENV SESSION_SECRET=placeholder-session-secret-32-chars!!
+
 RUN npm run build
 
 FROM base AS runner
