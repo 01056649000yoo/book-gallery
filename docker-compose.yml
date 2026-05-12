@@ -1,0 +1,15 @@
+services:
+  app:
+    image: ghcr.io/${GITHUB_REPOSITORY:-your-username/book-gallery}:latest
+    container_name: book-gallery
+    restart: unless-stopped
+    ports:
+      - "3000:3000"
+    env_file:
+      - .env.local
+    networks:
+      - app-network
+
+networks:
+  app-network:
+    driver: bridge
